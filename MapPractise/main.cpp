@@ -113,9 +113,10 @@ double calculate(std::string problem, bool modul) {
 
 	std::vector<double> num;
 	std::vector<char> oper;
-	bool number{ false };
+	bool number{ false }, ujemna{ false };
 	double helpNum{};
 	double j{ 1 };
+	char lastChar{};
 
 	// rozdzielenie liczb i operatorów
 	for (const auto& x : problem) {
@@ -123,6 +124,7 @@ double calculate(std::string problem, bool modul) {
 		if ((isdigit(x) || x == '.' || x == ',') && !number) {
 			number = true;
 			helpNum = x - 48;
+			lastChar = '0';
 			continue;
 		}
 		if (number) {
@@ -131,6 +133,8 @@ double calculate(std::string problem, bool modul) {
 				continue;
 			}
 			if (!isdigit(x)) {
+				if (ujemna)
+					helpNum *= -1;
 				number = false;
 				num.push_back(helpNum);
 			}
@@ -145,15 +149,22 @@ double calculate(std::string problem, bool modul) {
 		}
 		if (!number)
 		{
-			if (x == '-' && num.size() == 0)
-				num.push_back(0);
-			if (x == '-' && oper.size() > 0 && oper.back() == '-')
-				oper.back() = '+';
-			else oper.push_back(x);
+			if (!(x == '-' && lastChar != '0')) {
+				oper.push_back(x);
+				ujemna = false;
+			}
+			else
+				ujemna = true;
+			lastChar = x;
 		}
 	}
-	if (number)
+	if (number) {
+		if (ujemna)
+			helpNum *= -1;
 		num.push_back(helpNum);
+		lastChar = '0';
+	}
+		
 
 	if (oper.size() == 0) {
 		if (modul)
