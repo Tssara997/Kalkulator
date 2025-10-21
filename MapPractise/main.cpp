@@ -26,8 +26,16 @@ int main()
 	getline(std::cin, inp);
 	do
 	{
-		clean_up(inp);
-		std::cout << "= " << separate(inp) <<  std::endl;
+		try {
+			clean_up(inp);
+			std::cout << "= " << separate(inp) << std::endl;
+		}
+		catch (int& ex) {
+			std::cerr << "Problem nie do rozwiazania" << std::endl;
+		}
+		catch (std::string& ex) {
+			std::cerr << "Nie dozwolony znak " << ex << std::endl;
+		}
 		std::cout << "Podaj problem" << std::endl;
 		getline(std::cin, inp);
 		
@@ -37,12 +45,12 @@ int main()
 }
 
 void clean_up(std::string& problem) {
-	char allowedOper[8]{ '-', '+', '*', '/', '^', ')', '(', '|' };
+	char allowedOper[10]{ '-', '+', '*', '/', '^', ')', '(', '|', '.', ','};
 	problem.erase(std::remove_if(problem.begin(), problem.end(), std::isspace), problem.end());
 	for (int i{}; i < problem.length(); i++) {
 		char* operIndex = std::find(std::begin(allowedOper), std::end(allowedOper), problem[i]);
 		if (operIndex == std::end(allowedOper) && !isdigit(problem[i]))
-			std::cerr << "Nie dozwolony znak: " << problem[i] << std::endl;
+			throw std::string{ problem[i] };
 	}
 }
 
@@ -206,8 +214,7 @@ double mnozenie(double x, double y) {
 
 double dzielenie(double x, double y) {
 	if (y == 0) {
-		std::cerr << "nie mozna dzielic przez 0";
-		return 0;
+		throw 0;
 	}
 		
 	return x / y;
@@ -215,10 +222,7 @@ double dzielenie(double x, double y) {
 
 double potegowanie(double x, double y) {
 	if (x == 0 && y == 0) {
-		std::cerr << "0^0 jest niezidentyfikowane";
-		return 0;
+		throw 0;
 	}
-	if (y == 0)
-		return 1;
 	return pow(x, y);
 }
